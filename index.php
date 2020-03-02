@@ -13,19 +13,34 @@
     if ($authResult['auth']) {
         $leadsResult = $amoCRM->getLeads();
         $leadsId = array();
-        foreach ($leadsResult as $value)
-            $leadsId[] = $value['id'];
+        if (isset($leadsResult))
+            foreach ($leadsResult as $value)
+                $leadsId[] = $value['id'];
         echo var_dump($leadsId).'<br>'; //TODO delete
 
-        $tasksResult = $amoCRM->getTasks();
+        $tasksResult = $amoCRM->getTasks(); echo $tasksResult;
         $tasksId = array();
-        foreach ($tasksResult as $value)
-            $tasksId[] = $value['element_id'];
+        if (isset($tasksResult))
+            foreach ($tasksResult as $value)
+                if ($value['is_completed'] != true)
+                    $tasksId[] = $value['element_id'];
         echo var_dump($tasksId).'<br>'; //TODO delete
 
         $leadsIdWithoutTask = array_diff($leadsId, $tasksId);
         echo var_dump($leadsIdWithoutTask).'<br>'; //TODO delete
 
+        if (isset($leadsIdWithoutTask)) {
+            $taskList = array();
+            foreach ($leadsIdWithoutTask as $id) {
+                $taskList[] = array(
+                    'element_id' => $id,
+                    'element_type' => 2,
+                    'text' => 'Сделка без задачи',
+                );
+            }
+
+            echo $amoCRM->addTasks($taskList); //TODO delete
+        }
     }
 
     $amoCRM->closeCurl();

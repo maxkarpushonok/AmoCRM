@@ -26,7 +26,7 @@
          */
         public function __construct(String $login, String $hash, String $subDomain) {
             $this->user = array('USER_LOGIN' => $login, 'USER_HASH' => $hash);
-            $this->domain = 'https://'.$subDomain.'.amocrm.ru';
+            $this->domain = 'https://' . $subDomain . '.amocrm.ru';
             $this->curl = curl_init();
 
             $this->setOpt();
@@ -36,7 +36,7 @@
          * @return mixed (associative array with authorized user data)
          */
         public function authorization() {
-            curl_setopt($this->curl, CURLOPT_URL, $this->domain.self::PAGES['AUTH']);
+            curl_setopt($this->curl, CURLOPT_URL, $this->domain . self::PAGES['AUTH']);
             curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
             $out = curl_exec($this->curl);
             $code = (int) curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
@@ -66,13 +66,12 @@
          */
         public function addTasks(array $params = null) {
             $tasks['add'] = $params;
-            curl_setopt($this->curl, CURLOPT_URL, $this->domain.self::PAGES['TASKS']);
+            curl_setopt($this->curl, CURLOPT_URL, $this->domain . self::PAGES['TASKS']);
             curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($this->curl, CURLOPT_POSTFIELDS, json_encode($tasks));
             $out = curl_exec($this->curl);
             $code = (int) curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
             $this->checkCode($code);
-            echo var_dump($out).'<br>'; //TODO delete
             return true;
         }
 
@@ -99,8 +98,7 @@
         private function getPage(String $page, array $params = null) {
             if ($params != null)
                 $params = implode('&', $params);
-            echo $params.'<br>'; //TODO delete
-            curl_setopt($this->curl, CURLOPT_URL, $this->domain.$page.$params);
+            curl_setopt($this->curl, CURLOPT_URL, $this->domain . $page . $params);
             curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'GET');
             $out = curl_exec($this->curl);
             $code = (int) curl_getinfo($this->curl, CURLINFO_HTTP_CODE);

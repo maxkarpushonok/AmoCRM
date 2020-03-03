@@ -4,32 +4,41 @@
     session_start();
 
     include_once __DIR__ . '/vendor/autoload.php';
-    include_once 'AmoCRM.php'; //TODO auto load
+
+    spl_autoload_register(function ($class_name) {
+        include $class_name . '.php';
+    });
 
     $amoCRM = new AmoCRM('mazqazasd@outlook.com', '112f8e19ebf782451171efff26b1b071c65b2bbd', 'mazqazasd');
 
     $authResult = $amoCRM->authorization();
 
     if ($authResult['auth']) {
+        echo 'Hello ' . $authResult['accounts'][0]['name'] . '!<br>';
         $leadsResult = $amoCRM->getLeads();
         $leadsId = array();
-        if (isset($leadsResult))
+        if (isset($leadsResult)) {
             foreach ($leadsResult as $value)
                 $leadsId[] = $value['id'];
-        echo var_dump($leadsId).'<br>'; //TODO delete
+            echo 'Leads id: ' . implode(', ', $leadsId) . '<br>';
+        } else
+            echo 'Does not contain elements in leads!<br>';
 
-        $tasksResult = $amoCRM->getTasks(); echo $tasksResult;
+        $tasksResult = $amoCRM->getTasks();
         $tasksId = array();
-        if (isset($tasksResult))
+        if (isset($tasksResult)) {
             foreach ($tasksResult as $value)
                 if ($value['is_completed'] != true)
                     $tasksId[] = $value['element_id'];
-        echo var_dump($tasksId).'<br>'; //TODO delete
+            echo 'Tasks element_id: ' . implode(', ', $tasksId) . '<br>';
+        } else
+            echo 'Does not contain elements in tasks!<br>';
 
         $leadsIdWithoutTask = array_diff($leadsId, $tasksId);
-        echo var_dump($leadsIdWithoutTask).'<br>'; //TODO delete
 
-        if (isset($leadsIdWithoutTask)) {
+        if (sizeof($leadsIdWithoutTask)) {
+            echo 'Leads id without task: ' . implode(', ', $leadsIdWithoutTask) . '<br>';
+
             $taskList = array();
             foreach ($leadsIdWithoutTask as $id) {
                 $taskList[] = array(
@@ -39,8 +48,12 @@
                 );
             }
 
-            echo $amoCRM->addTasks($taskList); //TODO delete
-        }
+            if ($amoCRM->addTasks($taskList)) {
+                echo 'Successful!<br>';
+            } else
+                echo 'Not Completed!<br>';
+        } else
+            echo 'No leads without tasks!<br>';
     }
 
     $amoCRM->closeCurl();
